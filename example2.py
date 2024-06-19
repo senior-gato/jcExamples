@@ -19,31 +19,29 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    def pipe(
-        self, user_message: str, model_id: str, messages: List[dict], body: dict
-    ) -> Union[str, Generator, Iterator]:
-        # This is where you can add your custom pipelines like RAG.
-        print(f"pipe:{__name__}")
+def pipe(self, user_message: str, model_id: str, messages: List[dict], body: dict) -> Union[str, Generator, Iterator]:
+    # This is where you can add your custom pipelines like RAG.
+    print(f"pipe:{__name__}")
+    
+    if body.get("title", False):
+        print("Title Generation")
+        return "NewsAPI Pipeline"
+    else:
+        articles = []  # Initialize the list before the loop
+        for query in [user_message]:
+            url = f"https://newsapi.org/v2/everything?q={query}&pageSize=5&apiKey={os.getenv('NEWS_API_KEY', '')}"
+            
+            r = requests.get(url)
+            
+            response = json.loads(r.text)
+            articles = articles + response['articles'][:5]  # get first 5 articles
+            print(articles)
         
-        if body.get("title", False):
-            print("Title Generation")
-            return "NewsAPI Pipeline"
-        else:
-            articles = []
-            for query in [user_message]:
-                url = f"https://newsapi.org/v2/everything?q={query}&pageSize=5&apiKey={os.getenv('NEWS_API_KEY', '')}"
-
-                r = requests.get(url)
-                
-                response = json.loads(r.text)
-                articles = articles + response['articles'][:5] # get first 5 articles
-                print(articles)
-
-            content = []
-            for article in articles:
-                if 'content' not in article:
-                    content.append(article['description'])
-                else:
-                    content.append(article['content'])
-
-            return '\n'.join(content)
+        content = []
+        for article in articles:
+            if 'content' not in article:
+                content.append(article['description'])
+            else:
+                content.append(article['content'])
+            
+        return '\n'.join(content)
