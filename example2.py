@@ -1,47 +1,39 @@
 from typing import List, Union, Generator, Iterator
 from pydantic import BaseModel
+from schemas import OpenAIChatMessage
 import requests
 import os
-import json
+
 
 class Pipeline:
     class Valves(BaseModel):
         pass
 
     def __init__(self):
-        self.name = "NewsAPI Pipeline"
+        # Optionally, you can set the id and name of the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
+        # The identifier must be unique across all pipelines.
+        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
+        # self.id = "wiki_pipeline"
+        self.name = "Wikipedia Pipeline"
+
+        # Initialize rate limits
+        self.valves = self.Valves(**{"OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "")})
 
     async def on_startup(self):
+        # This function is called when the server is started.
         print(f"on_startup:{__name__}")
         pass
 
     async def on_shutdown(self):
+        # This function is called when the server is stopped.
         print(f"on_shutdown:{__name__}")
         pass
 
-def pipe(self, user_message: str, model_id: str, messages: List[dict], body: dict) -> Union[str, Generator, Iterator]:
-    # This is where you can add your custom pipelines like RAG.
-    print(f"pipe:{__name__}")
-    
-    if body.get("title", False):
-        print("Title Generation")
-        return "NewsAPI Pipeline"
-    else:
-        articles = []  # Initialize the list before the loop
-        for query in [user_message]:
-            url = f"https://newsapi.org/v2/everything?q={query}&pageSize=5&apiKey={os.getenv('NEWS_API_KEY', '')}"
-            
-            r = requests.get(url)
-            
-            response = json.loads(r.text)
-            articles = articles + response['articles'][:5]  # get first 5 articles
-            print(articles)
-        
-        content = []
-        for article in articles:
-            if 'content' not in article:
-                content.append(article['description'])
-            else:
-                content.append(article['content'])
-            
-        return '\n'.join(content)
+    def pipe(
+        self, user_message: str, model_id: str, messages: List[dict], body: dict
+    ) -> Union[str, Generator, Iterator]:
+        # This is where you can add your custom pipelines like RAG.
+        print(f"pipe:{__name__}")
+
+            return "sup dawg"
